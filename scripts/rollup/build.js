@@ -24,6 +24,7 @@ const Packaging = require('./packaging');
 const { asyncRimRaf } = require('./utils');
 const codeFrame = require('@babel/code-frame');
 const Wrappers = require('./wrappers');
+var flow = require('rollup-plugin-flow');
 
 const RELEASE_CHANNEL = process.env.RELEASE_CHANNEL;
 
@@ -227,6 +228,7 @@ function getFormat(bundleType) {
 }
 
 function isProductionBundleType(bundleType) {
+  return true
   switch (bundleType) {
     case NODE_ES2015:
       return true;
@@ -314,7 +316,8 @@ function getPlugins(
   bundle
 ) {
   const forks = Modules.getForks(bundleType, entry, moduleType, bundle);
-  const isProduction = isProductionBundleType(bundleType);
+  // const isProduction = isProductionBundleType(bundleType);
+  const isProduction = true;
   const isProfiling = isProfilingBundleType(bundleType);
   const isUMDBundle =
     bundleType === UMD_DEV ||
@@ -335,16 +338,21 @@ function getPlugins(
   return [
     // Keep dynamic imports as externals
     dynamicImports(),
-    {
-      name: 'rollup-plugin-flow-remove-types',
-      transform(code) {
-        const transformed = flowRemoveTypes(code);
-        return {
-          code: transformed.toString(),
-          map: transformed.generateMap(),
-        };
-      },
-    },
+    babel({
+      'presets': ['@babel/preset-flow']
+      // plugins: ['@babel/plugin-transform-flow-strip-types'],
+    }),
+    // {
+    //   name: 'rollup-plugin-flow-remove-types',
+    //   transform(code) {
+    //     const transformed = flowRemoveTypes(code);
+    //     return {
+    //       code: transformed.toString(),
+    //       map: transformed.generateMap(),
+    //     };
+    //   },
+    // },
+    // flow(),
     // Shim any modules that need forking in this environment.
     useForks(forks),
     // Ensure we don't try to bundle any fbjs modules.
@@ -358,16 +366,16 @@ function getPlugins(
       exclude: 'node_modules/**/*',
     }),
     // Compile to ES2015.
-    babel(
-      getBabelConfig(
-        updateBabelOptions,
-        bundleType,
-        packageName,
-        externals,
-        !isProduction,
-        bundle
-      )
-    ),
+    // babel(
+    //   getBabelConfig(
+    //     updateBabelOptions,
+    //     bundleType,
+    //     packageName,
+    //     externals,
+    //     !isProduction,
+    //     bundle
+    //   )
+    // ),
     // Remove 'use strict' from individual source files.
     // {
     //   transform(source) {
@@ -388,7 +396,7 @@ function getPlugins(
     // The CommonJS plugin *only* exists to pull "art" into "react-art".
     // I'm going to port "art" to ES modules to avoid this problem.
     // Please don't enable this for anything else!
-    isUMDBundle && entry === 'react-art' && commonjs(),
+    // isUMDBundle && entry === 'react-art' && commonjs(),
     // Apply dead code elimination and/or minification.
     // closure doesn't yet support leaving ESM imports intact
     // isProduction &&
@@ -445,23 +453,23 @@ function getPlugins(
     //   },
     // },
     // Record bundle size.
-    sizes({
-      getSize: (size, gzip) => {
-        const currentSizes = Stats.currentBuildResults.bundleSizes;
-        const recordIndex = currentSizes.findIndex(
-          record =>
-            record.filename === filename && record.bundleType === bundleType
-        );
-        const index = recordIndex !== -1 ? recordIndex : currentSizes.length;
-        currentSizes[index] = {
-          filename,
-          bundleType,
-          packageName,
-          size,
-          gzip,
-        };
-      },
-    }),
+    // sizes({
+    //   getSize: (size, gzip) => {
+    //     const currentSizes = Stats.currentBuildResults.bundleSizes;
+    //     const recordIndex = currentSizes.findIndex(
+    //       record =>
+    //         record.filename === filename && record.bundleType === bundleType
+    //     );
+    //     const index = recordIndex !== -1 ? recordIndex : currentSizes.length;
+    //     currentSizes[index] = {
+    //       filename,
+    //       bundleType,
+    //       packageName,
+    //       size,
+    //       gzip,
+    //     };
+    //   },
+    // }),
   ].filter(Boolean);
 }
 

@@ -1,3 +1,6 @@
+// import './diff/diff'
+
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 // import customRenderer from './customRenderer';

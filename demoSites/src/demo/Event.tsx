@@ -1,17 +1,19 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 type Props = {}
 
 const Event = (props: Props) => {
-  const first = useRef<HTMLDivElement>(null)
+  // const first = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    first.current?.addEventListener('mouseenter', (e) => {
-      console.log('mouseenter native')
-    })
+  //   first.current?.addEventListener('mouseenter', (e) => {
+  //     console.log('mouseenter native')
+  //   })
 
-  }, [first.current])
+  // }, [first.current])
+  const [first, setfirst] = useState(1)
+
 
 
   return (
@@ -19,7 +21,7 @@ const Event = (props: Props) => {
       onClick={() => {
         console.log('div')
       }}
-      ref={first}
+
       onMouseEnter={(e) => {
         e.stopPropagation()
         console.log("onMouseEnter")

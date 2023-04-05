@@ -1823,6 +1823,7 @@ function forceStoreRerender(fiber: Fiber) {
   }
 }
 
+// useState的mount版本,测试chang
 function mountState<S>(
   initialState: (() => S) | S,
 ): [S, Dispatch<BasicStateAction<S>>] {
@@ -2795,6 +2796,7 @@ if (enableUseEffectEventHook) {
   (ContextOnlyDispatcher: Dispatcher).useEffectEvent = throwInvalidHookError;
 }
 
+// mount hooks实现
 const HooksDispatcherOnMount: Dispatcher = {
   readContext,
 
